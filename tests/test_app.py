@@ -30,3 +30,52 @@ def test_unknown_ticket_returns_404(client):
 
 # Add your own tests below: one failing test for each bug you find,
 # plus at least 5 negative tests.
+
+def test_unknown_category_returns_400(client):
+    response = client.post("/api/tickets", json={
+        "title": "Printer jam",
+        "description": "Paper stuck",
+        "category": "Furniture",
+        "priority": "High"
+    })
+    assert response.status_code == 400
+
+
+def test_invalid_priority_returns_400(client):
+    response = client.post("/api/tickets", json={
+        "title": "Printer jam",
+        "description": "Paper stuck",
+        "category": "Hardware",
+        "priority": "Urgent"
+    })
+    assert response.status_code == 400
+
+
+def test_missing_title_returns_400(client):
+    response = client.post("/api/tickets", json={
+        "description": "Paper stuck",
+        "category": "Hardware",
+        "priority": "High"
+    })
+    assert response.status_code == 400
+
+
+def test_empty_title_returns_400(client):
+    response = client.post("/api/tickets", json={
+        "title": "",
+        "description": "Paper stuck",
+        "category": "Hardware",
+        "priority": "High"
+    })
+    assert response.status_code == 400
+
+
+def test_empty_description_returns_400(client):
+    response = client.post("/api/tickets", json={
+        "title": "Printer jam",
+        "description": "",
+        "category": "Hardware",
+        "priority": "High"
+    })
+    assert response.status_code == 400
+

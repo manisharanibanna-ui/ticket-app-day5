@@ -47,8 +47,15 @@ def find_ticket(ticket_id):
 
 def sort_by_priority(tickets):
     """Return tickets with the most urgent first: High, then Medium, then Low."""
-    return sorted(tickets, key=lambda t: t["priority"])
-
+    priority_order = {
+        "High": 1,
+        "Medium": 2,
+        "Low": 3
+    }
+    return sorted(
+        tickets,
+        key=lambda t: priority_order.get(t["priority"], 4)
+    )
 
 # ---------- API ----------
 
@@ -65,6 +72,7 @@ def get_ticket(ticket_id):
     return jsonify(ticket)
 
 
+
 @app.post("/api/tickets")
 def create_ticket():
     data = request.get_json(silent=True) or {}
@@ -73,10 +81,15 @@ def create_ticket():
     category = data.get("category", "Other")
     priority = data.get("priority", "Medium")
 
-    if title is None:
+    if not title or not title.strip():
         return jsonify({"error": "Title is required"}), 400
+
+    if not description or not description.strip():
+        return jsonify({"error": "Description is required"}), 400
+
     if category not in CATEGORIES:
         return jsonify({"error": "Unknown category"}), 400
+
     if priority not in PRIORITIES:
         return jsonify({"error": "Unknown priority"}), 400
 
@@ -91,7 +104,6 @@ def create_ticket():
     }
     TICKETS.append(ticket)
     return jsonify(ticket), 201
-
 
 @app.patch("/api/tickets/<int:ticket_id>/status")
 def change_status(ticket_id):
@@ -111,7 +123,7 @@ def change_status(ticket_id):
 STATUS_LABELS = {
     "Open": "Open",
     "In Progress": "In Progress",
-    "Resolved": "Open",
+    "Resolved": "Resolved",
     "Closed": "Closed",
 }
 
